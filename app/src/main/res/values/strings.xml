@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CollegeSocial</string>
+    <string name="i_m_a_button">I\'m a button</string>
+    <string name="title_activity_add_info">AddInfoActivity</string>
 </resources>

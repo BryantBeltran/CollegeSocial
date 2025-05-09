@@ -1,0 +1,10 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Make it circular: corner radius = half of width/height -->
+    <corners android:radius="50dp" />
+
+    <!-- Use a valid hex color or reference -->
+    <solid android:color="#FF0000" />
+
+</shape>

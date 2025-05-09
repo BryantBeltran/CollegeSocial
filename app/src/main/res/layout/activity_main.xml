@@ -2,14 +2,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#EEEEEE"
+    android:fitsSystemWindows="true"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:fitsSystemWindows="true">
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
         android:text="Loading events..."
-        android:textSize="20dp" />
-</LinearLayout>
+        android:textSize="20sp" />
 
+    <Button
+        android:id="@+id/supabutton"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="@drawable/button_custom"
+        android:backgroundTint="#DC0707"
+        android:text="Add Event"
+        android:textColor="@color/white"
+        />
+</LinearLayout>

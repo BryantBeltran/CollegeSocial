@@ -5,6 +5,11 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
+import android.widget.Button
+import android.util.Log
+import android.content.Intent
+
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -12,6 +17,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val textView = findViewById<TextView>(R.id.textView)
+        findViewById<Button>(R.id.supabutton).setOnClickListener {
+            Log.d("BUTTONS", "User tapped the button")
+            val intent = Intent(this, AddInfoActivity::class.java)
+            startActivity(intent)
+        }
 
         val retrofit = Retrofit.Builder()
             .baseUrl("https://68117ac53ac96f7119a4aa8d.mockapi.io/")
