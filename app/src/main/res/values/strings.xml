@@ -2,4 +2,12 @@
     <string name="app_name">CollegeSocial</string>
     <string name="i_m_a_button">I\'m a button</string>
     <string name="title_activity_add_info">AddInfoActivity</string>
+    <string name="submit">Submit</string>
+    <string name="location">Location</string>
+    <string name="login_to_collegesocial">Login to CollegeSocial</string>
+    <string name="username_or_email">Username or Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="logout">LOGOUT</string>
+    <string name="add_new_event">Add New Event</string>
 </resources>
