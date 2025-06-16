@@ -118,5 +118,3 @@ Follow these steps to get the College Planner App running on your local machine:
 * **UI Refinements:** Further polish the UI/UX using more Jetpack Compose for consistency.
 
 ---
-
-This `README.md` provides a comprehensive overview of your project's current state and setup. Remember to keep it updated as you add more features!
