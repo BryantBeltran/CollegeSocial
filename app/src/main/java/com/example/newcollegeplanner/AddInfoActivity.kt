@@ -1,5 +1,6 @@
 package com.example.newcollegeplanner
 
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -12,16 +13,21 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import java.text.SimpleDateFormat
 import java.util.*
-import com.example.newcollegeplanner.RetrofitInstance;
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+
+
 
 class AddInfoActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +70,47 @@ fun AddInfoScreen(onSubmit: (String, String, String, String) -> Unit) {
     var date by remember { mutableStateOf("") }
     var time by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
+
     var isDateValid by remember { mutableStateOf(true) }
+    var isLocationValid by remember { mutableStateOf(true) }
+    var isTimeValid by remember { mutableStateOf(true) }
+
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    val timePickerDialog = remember {
+        TimePickerDialog(
+            context,
+            { _, hour: Int, minute: Int ->
+                val cal = Calendar.getInstance()
+                cal.set(Calendar.HOUR_OF_DAY, hour)
+                cal.set(Calendar.MINUTE, minute)
+                val formatter = SimpleDateFormat("hh:mm a", Locale.US)
+                time = formatter.format(cal.time)
+                isTimeValid = true
+            },
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            false
+        )
+    }
+
+    fun validateLocation(location: String): Boolean {
+        val allowedCities = listOf("New York", "Los Angeles", "Chicago", "Rexburg")
+        return location.isNotBlank() &&
+                allowedCities.any { it.equals(location.trim(), ignoreCase = true) }
+    }
+
+    fun validateTime(time: String): Boolean {
+        return try {
+            val format = SimpleDateFormat("hh:mm a", Locale.US)
+            format.isLenient = false
+            format.parse(time)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
 
     fun validateDate(dateString: String): Boolean {
         return try {
@@ -110,24 +156,60 @@ fun AddInfoScreen(onSubmit: (String, String, String, String) -> Unit) {
             )
         }
 
+        // Time Picker Field
         OutlinedTextField(
             value = time,
-            onValueChange = { time = it },
+            onValueChange = {}, // disable text editing
             label = { Text("Time") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { timePickerDialog.show() }, // opens the dialog
+            readOnly = true, // blocks keyboard
+            enabled = true, // keep it visually active
+            isError = !isTimeValid,
+            trailingIcon = {
+                Icon(Icons.Default.AccessTime, contentDescription = "Select Time")
+            }
         )
+
+
+        if (!isTimeValid && time.isNotBlank()) {
+            Text(
+                text = "Invalid time.",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
 
         OutlinedTextField(
             value = location,
-            onValueChange = { location = it },
+            onValueChange = {
+                location = it
+                isLocationValid = true
+            },
             label = { Text("Location") },
+            isError = !isLocationValid,
             modifier = Modifier.fillMaxWidth()
         )
+
+        if (!isLocationValid && location.isNotBlank()) {
+            Text(
+                text = "Invalid location. Only New York, Los Angeles, Chicago, or Rexburg allowed.",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            if (isDateValid) {
+            val isLocValidNow = validateLocation(location)
+            val isTimeValidNow = validateTime(time)
+
+            isLocationValid = isLocValidNow
+            isTimeValid = isTimeValidNow
+
+            if (isDateValid && isLocValidNow && isTimeValidNow) {
                 onSubmit(name, date, time, location)
             }
         }) {
@@ -135,3 +217,5 @@ fun AddInfoScreen(onSubmit: (String, String, String, String) -> Unit) {
         }
     }
 }
+
+

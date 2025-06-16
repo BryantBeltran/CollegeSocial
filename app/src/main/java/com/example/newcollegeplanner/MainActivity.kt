@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 import androidx.appcompat.widget.Toolbar
-
+import androidx.core.app.ActivityCompat
 
 
 class MainActivity : AppCompatActivity() {
@@ -32,6 +32,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
+
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -62,13 +65,12 @@ class MainActivity : AppCompatActivity() {
             refreshLauncher.launch(intent)
         }
 
-        // --- Logout Button Listener ---
-        // This is where you connect the button in XML to the logoutUser() function
+        // --- Logout Button Listener --
         findViewById<Button>(R.id.buttonLogout).setOnClickListener {
             Log.d("MainActivity", "Logout button clicked!") // Log to confirm click listener fires
             logoutUser() // CALLS THE FUNCTION BELOW
         }
-    } // <-- onCreate() method ends here
+    }
 
     // This is a private function within MainActivity, so it can be called by things inside MainActivity
     private fun loadEvents(recyclerView: RecyclerView) {
@@ -87,7 +89,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    // Make sure this entire function block is within the curly braces of 'class MainActivity : AppCompatActivity() { ... }'
     private fun logoutUser() {
         // Clear login status from SharedPreferences
         val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -98,7 +99,7 @@ class MainActivity : AppCompatActivity() {
 
         // Navigate back to LoginActivity and clear the activity stack
         val intent = Intent(this, LoginActivity::class.java)
-        // These flags ensure that when you log out, all previous activities (like MainActivity)
+        // These flags ensure that when you log out, all previous activities
         // are removed from the back stack, so the user can't go back to a logged-in state.
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
