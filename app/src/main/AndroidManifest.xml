@@ -26,11 +26,17 @@
 
         <activity
             android:name=".ForgotPasswordActivity"
-            android:exported="false" android:label="Reset Password" android:theme="@style/Theme.NewCollegePlanner" /> <activity android:name=".MainActivity"
-        android:exported="false" />
+            android:exported="false"
+            android:label="Reset Password"
+            android:theme="@style/Theme.NewCollegePlanner" /> <activity
+        android:name=".AllEventsActivity"
+        android:exported="false"
+        android:label="All Events"
+        android:theme="@style/Theme.NewCollegePlanner" />
 
-        <activity android:name=".AddInfoActivity"
-            android:exported="false" />
-
-    </application>
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" /> <activity
+        android:name=".AddInfoActivity"
+        android:exported="false" /> </application>
 </manifest>

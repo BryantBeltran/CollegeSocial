@@ -1,5 +1,6 @@
 package com.example.newcollegeplanner
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,8 +20,11 @@ class EventAdapter(private val events: List<Event>) : RecyclerView.Adapter<Event
 
     override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
         val event = events[position]
-        holder.eventText.text = "Event: ${event.event_name}\n${event.date} at ${event.time}\nLocation: ${event.location}"
+        val displayText = "Event: ${event.event_name}\n${event.date} at ${event.time}\nLocation: ${event.location}"
+        holder.eventText.text = displayText
+        Log.d("EventAdapter", "Binding position $position: Text -> $displayText")
     }
+
 
     override fun getItemCount() = events.size
 }

@@ -1,5 +1,7 @@
 package com.example.newcollegeplanner
 
+import android.content.SharedPreferences
+import android.content.Context
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
@@ -30,6 +32,13 @@ import androidx.compose.material.icons.filled.AccessTime
 
 
 class AddInfoActivity : AppCompatActivity() {
+
+    companion object {
+        private const val PREF_NAME = "LoginPrefs"
+        private const val KEY_LOGGED_IN_USER_ID = "loggedInUserId"
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -43,6 +52,17 @@ class AddInfoActivity : AppCompatActivity() {
     }
 
     private fun sendToApi(event_name: String, date: String, time: String, location: String) {
+        val prefs: SharedPreferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val currentUserId: String? = prefs.getString(KEY_LOGGED_IN_USER_ID, null)
+
+        if (currentUserId == null) {
+            Toast.makeText(this, "Error: User not logged in. Cannot add event.", Toast.LENGTH_LONG).show()
+            Log.e("AddInfoActivity", "Attempted to add event without a logged-in user ID.")
+            // Optionally, navigate back to login or handle this error gracefully
+            finish()
+            return
+        }
+
         val event = Event(event_name, date, time, location)
         val call = RetrofitInstance.api.addEvent(event)
 

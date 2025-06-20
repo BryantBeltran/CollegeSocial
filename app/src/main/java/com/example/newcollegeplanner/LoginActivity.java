@@ -37,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final String PREF_NAME = "LoginPrefs";
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
+    private static final String KEY_LOGGED_IN_USER_ID = "loggedInUserId";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,16 +85,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        // Optional: Set OnClickListener for "Sign Up Here" TextView
-        // If you create a SignUpActivity later, uncomment and use it.
-        // textViewSignUp.setOnClickListener(new View.OnClickListener() {
-        //     @Override
-        //     public void onClick(View v) {
-        //         // Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
-        //         // startActivity(intent);
-        //         Toast.makeText(LoginActivity.this, "Sign Up Clicked! (Functionality not implemented yet)", Toast.LENGTH_SHORT).show();
-        //     }
-        // });
+
     }
 
     // Method to handle the login attempt via API
@@ -112,10 +104,12 @@ public class LoginActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     List<User> users = response.body();
                     boolean isAuthenticated = false;
+                    String loggedInUserId = null; // NEW: To store the ID of the authenticated user
 
                     for (User user : users) {
                         if (user.getUsername().equals(enteredUsername) && user.getPassword().equals(enteredPassword)) {
                             isAuthenticated = true;
+                            loggedInUserId = user.getId(); // NEW: Get the user's ID
                             break;
                         }
                     }
@@ -125,6 +119,7 @@ public class LoginActivity extends AppCompatActivity {
                         SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putBoolean(KEY_IS_LOGGED_IN, true);
+                        editor.putString(KEY_LOGGED_IN_USER_ID, loggedInUserId); // NEW: Save the user's ID
                         editor.apply();
                         navigateToMainActivity();
                     } else {
@@ -144,6 +139,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
 
     // Helper method to navigate to MainActivity and finish LoginActivity
     private void navigateToMainActivity() {

@@ -13,5 +13,5 @@ data class User(
     val role: String,     // Matches "role" from MockAPI.io
     val phone: String,    // Matches "phone" from MockAPI.io
     val accountCreated: String, // Matches "accountCreated" from MockAPI.io
-    val profilePicture: String  // Matches "profilePicture" from MockAPI.io
+    val profilePicture: String  
 )

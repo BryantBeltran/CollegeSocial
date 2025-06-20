@@ -7,5 +7,6 @@ data class Event(
     val date: String,
     val time: String,
     val location: String,
-    val id: String? = null // MockAPI.io adds an ID, make it nullable for POST
+    val id: String? = null, // MockAPI.io adds an ID, make it nullable for POST
+    val creatorId: String? = null
 )
