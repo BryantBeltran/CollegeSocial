@@ -32,11 +32,9 @@
         android:name=".AllEventsActivity"
         android:exported="false"
         android:label="All Events"
-        android:theme="@style/Theme.NewCollegePlanner" />
-
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" /> <activity
+        android:theme="@style/Theme.NewCollegePlanner" /> <activity
+        android:name=".MainActivity"
+        android:exported="false" /> <activity
         android:name=".AddInfoActivity"
         android:exported="false" /> </application>
 </manifest>
