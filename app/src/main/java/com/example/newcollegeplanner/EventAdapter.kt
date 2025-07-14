@@ -7,14 +7,19 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class EventAdapter(private val events: List<Event>) : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
+class EventAdapter(
+    val events: MutableList<Event>,
+    private val onDeleteEvent: ((Event, Int) -> Unit)? = null,
+    private val enableSwipeHints: Boolean = false
+) : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
 
     class EventViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val eventText: TextView = itemView.findViewById(R.id.eventText)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_event, parent, false)
+        val layoutId = if (enableSwipeHints) R.layout.item_event_swipeable else R.layout.item_event
+        val view = LayoutInflater.from(parent.context).inflate(layoutId, parent, false)
         return EventViewHolder(view)
     }
 
@@ -27,4 +32,15 @@ class EventAdapter(private val events: List<Event>) : RecyclerView.Adapter<Event
 
 
     override fun getItemCount() = events.size
+
+    fun removeItem(position: Int) {
+        if (position >= 0 && position < events.size) {
+            events.removeAt(position)
+            notifyItemRemoved(position)
+        }
+    }
+
+    fun getItem(position: Int): Event? {
+        return if (position >= 0 && position < events.size) events[position] else null
+    }
 }

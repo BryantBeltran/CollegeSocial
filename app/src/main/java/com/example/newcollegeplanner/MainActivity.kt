@@ -6,11 +6,14 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.ItemTouchHelper
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 import androidx.appcompat.widget.Toolbar
@@ -27,11 +30,13 @@ import android.widget.ImageView // Make sure ImageView is imported for your icon
 class MainActivity : AppCompatActivity() {
     private lateinit var refreshLauncher: ActivityResultLauncher<Intent>
     private lateinit var api: ApiService
+    private lateinit var eventAdapter: EventAdapter
 
     // --- Correct Class Member Declarations (accessible throughout the class) ---
     private lateinit var recyclerView: RecyclerView
     private lateinit var supabutton: Button // Your "Add New Event" button
     private lateinit var iconAllEvents: ImageView // Your "All Events" icon in the toolbar
+    private lateinit var iconCalendar: ImageView // Your "Calendar" icon in the toolbar
     private lateinit var buttonLogout: Button // Your "Logout" button in the toolbar
     // --- End Class Member Declarations ---
 
@@ -57,8 +62,27 @@ class MainActivity : AppCompatActivity() {
 
         supabutton = findViewById(R.id.supabutton)
         iconAllEvents = findViewById(R.id.iconAllEvents)
+        iconCalendar = findViewById(R.id.iconCalendar)
         buttonLogout = findViewById(R.id.buttonLogout)
         // --- END CORRECT INITIALIZATION ---
+
+        // Initialize EventAdapter with empty list initially
+        eventAdapter = EventAdapter(
+            events = mutableListOf(),
+            onDeleteEvent = { event, position ->
+                // This callback will be called when swipe-to-delete occurs
+                deleteEvent(event, position)
+            },
+            enableSwipeHints = true
+        )
+        recyclerView.adapter = eventAdapter
+
+        // Set up swipe-to-delete functionality
+        val swipeToDeleteCallback = SwipeToDeleteCallback(this, eventAdapter) { position, event ->
+            deleteEvent(event, position)
+        }
+        val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
 
         // Initialize Retrofit for API calls
         val retrofit = Retrofit.Builder()
@@ -97,6 +121,13 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, AllEventsActivity::class.java)
             startActivity(intent)
         }
+
+        // Set OnClickListener for the "Calendar" icon in the toolbar
+        iconCalendar.setOnClickListener { // Uses the class member 'iconCalendar'
+            Log.d("MainActivity", "Calendar icon clicked!")
+            val intent = Intent(this, CalendarEventsActivity::class.java)
+            startActivity(intent)
+        }
     } // <-- onCreate() method ends here
 
     // --- loadEvents() method definition (no recyclerView parameter) ---
@@ -106,7 +137,8 @@ class MainActivity : AppCompatActivity() {
 
         if (currentUserId == null) {
             Log.w("MainActivity", "No logged-in user ID found. Displaying no events.")
-            recyclerView.adapter = EventAdapter(emptyList()) // Uses the class member 'recyclerView'
+            eventAdapter.events.clear()
+            eventAdapter.notifyDataSetChanged()
             return
         }
 
@@ -141,13 +173,79 @@ class MainActivity : AppCompatActivity() {
                         Log.d("MainActivity", "Displaying (User Specific, Upcoming): ${event.event_name} - ${event.date} ${event.time} (Creator: ${event.creatorId})")
                     }
 
-                    recyclerView.adapter = EventAdapter(filteredEvents) // Uses the class member 'recyclerView'
+                    // Update the adapter with new data
+                    updateEventAdapter(filteredEvents)
 
                 }
             }
 
             override fun onFailure(call: Call<List<Event>>, t: Throwable) {
                 Log.e("MainActivity", "Error loading events: ${t.message}")
+            }
+        })
+    }
+
+    private fun updateEventAdapter(events: List<Event>) {
+        eventAdapter.events.clear()
+        eventAdapter.events.addAll(events)
+        eventAdapter.notifyDataSetChanged()
+        
+        Log.d("MainActivity", "Updated adapter with ${events.size} events")
+        
+        // Log each event for debugging
+        events.forEachIndexed { index, event ->
+            Log.d("MainActivity", "Event $index: ${event.event_name} (ID: ${event.id})")
+        }
+    }
+
+    private fun deleteEvent(event: Event, position: Int) {
+        // Show confirmation dialog before deleting
+        AlertDialog.Builder(this)
+            .setTitle("Delete Event")
+            .setMessage("Are you sure you want to delete '${event.event_name}'?")
+            .setPositiveButton("Delete") { _, _ ->
+                performEventDeletion(event, position)
+            }
+            .setNegativeButton("Cancel") { _, _ ->
+                // Restore the item in the adapter since the swipe was cancelled
+                loadEvents()
+            }
+            .setOnCancelListener {
+                // Restore the item if dialog is cancelled
+                loadEvents()
+            }
+            .show()
+    }
+
+    private fun performEventDeletion(event: Event, position: Int) {
+        val eventId = event.id
+        if (eventId == null) {
+            Toast.makeText(this, "Cannot delete event: No ID found", Toast.LENGTH_SHORT).show()
+            loadEvents() // Restore the list
+            return
+        }
+
+        Log.d("MainActivity", "Attempting to delete event with ID: $eventId")
+
+        api.deleteEvent(eventId).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Log.d("MainActivity", "Event deleted successfully from server")
+                    eventAdapter.removeItem(position)
+                    Toast.makeText(this@MainActivity, "Event '${event.event_name}' deleted", Toast.LENGTH_SHORT).show()
+                } else {
+                    Log.e("MainActivity", "Failed to delete event: ${response.code()} - ${response.message()}")
+                    Toast.makeText(this@MainActivity, "Failed to delete event: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    // Refresh the list to restore the item if deletion failed
+                    loadEvents()
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e("MainActivity", "Error deleting event: ${t.message}")
+                Toast.makeText(this@MainActivity, "Error deleting event: ${t.message}", Toast.LENGTH_SHORT).show()
+                // Refresh the list to restore the item if deletion failed
+                loadEvents()
             }
         })
     }

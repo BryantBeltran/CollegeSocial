@@ -203,7 +203,7 @@ fun AddInfoScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary) // Toolbar color
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Red) // Toolbar color
             )
         },
         containerColor = Color.White // Set background color of the content area
@@ -345,16 +345,20 @@ fun AddInfoScreen(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading // Disable button while loading
+                enabled = !isLoading, // Disable button while loading
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Red, // red color
+                    contentColor = Color.White
+                )
             ) {
                 Text("Submit Event")
             }
 
-            // --- Loading Indicator ---
+      
             if (isLoading) {
                 CircularProgressIndicator(modifier = Modifier.padding(top = 16.dp))
             }
-            // --- END NEW ---
+        
         }
     }
 }

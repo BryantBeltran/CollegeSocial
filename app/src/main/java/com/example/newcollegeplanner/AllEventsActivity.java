@@ -123,7 +123,7 @@ public class AllEventsActivity extends AppCompatActivity {
                     Log.d("AllEventsActivity", "Other upcoming: " + otherUpcoming.size());
                     Log.d("AllEventsActivity", "Combined events to display: " + combinedEvents.size());
 
-                    recyclerView.setAdapter(new EventAdapter(combinedEvents)); // Set the adapter
+                    recyclerView.setAdapter(new EventAdapter(new ArrayList<>(combinedEvents), null, false)); // Set the adapter
 
                 } else {
                     Log.e("AllEventsActivity", "API Response Error: " + response.code() + " - " + response.message());
